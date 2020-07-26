@@ -9,3 +9,7 @@ The Oled display shows the status, hashed meterid and the meter values electrici
 <img src="images/oled.jpg" alt="OLED display" width="200"/>
 
 > TTGO OLED display
+
+<img src="images/wiring.jpg" alt="Wiring RJ11 connector to TTGO" width="200"/>
+
+> Wiring RJ11 connector to TTGO
