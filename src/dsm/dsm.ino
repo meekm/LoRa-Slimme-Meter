@@ -74,6 +74,7 @@ void setup() {
   }
 
   display.clearDisplay();
+  display.setRotation( 2);  // rotate 180 degrees
   display.setTextColor(WHITE);
   display.setTextSize(1);
   display.setCursor(0, 11);  display.printf("TTN Slimme meter %s", VERSION);
@@ -86,6 +87,7 @@ void setup() {
 
 void displayOLED() {
   display.clearDisplay();
+  display.setRotation( 2);  // rotate 180 degrees
   display.setCursor(0, 0);  display.printf( " Laag");
   display.setCursor(64, 0); display.printf( " Hoog");
   display.setCursor(0, 11); display.printf( " %.3f", dsm.laag);
@@ -93,7 +95,7 @@ void displayOLED() {
   display.setCursor(0, 22); display.printf( "-%.3f", dsm.laagTerug);
   display.setCursor(64, 22); display.printf( "-%.3f", dsm.hoogTerug);
   display.setCursor(0, 33); display.printf( " Gas %.3f", dsm.gas);
-  display.setCursor(0, 44); display.printf( " Id %X", dsm.id);
+  display.setCursor(0, 44); display.printf( " Id %X %d", dsm.id, atoi(DEVEUI));
   display.setCursor(0, 55); display.printf( " DSM %s", (dsmOk) ? "ok" : "fail");
   display.setCursor(64, 55); display.printf( " TTN %s", (ttnOk) ? "ok" : "fail");
   display.display();
@@ -105,7 +107,9 @@ void sendToTTN( ) {
     float laag, hoog, laagterug, hoogterug, gas;
   } payload;
 
-  payload.id = dsm.id;  
+  payload.id = dsm.id;
+  payload.laag = dsm.laag;
+  payload.hoog = dsm.hoog;
   payload.laagterug = dsm.laagTerug;
   payload.hoogterug = dsm.hoogTerug;
   payload.gas = dsm.gas;
