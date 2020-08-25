@@ -19,6 +19,6 @@
 #define CYCLETIME 600000  //10 minutes
 
 #define BAUDRATE 9600
-#define VERSION "0.9"
+#define VERSION "1.0"
 
 #endif
