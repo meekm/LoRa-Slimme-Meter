@@ -6,7 +6,6 @@
   Date 12/7/2020
   --------------------------------------------------------------------*/
 #include <Arduino.h>
-#include <SoftwareSerial.h>
 
 //Libraries for OLED Display
 #include <Wire.h>
@@ -16,7 +15,6 @@
 #include "lora.h"
 #include "dsm.h"
 
-
 //OLED pins
 #define OLED_SDA 4
 #define OLED_SCL 15
@@ -25,11 +23,16 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
-SoftwareSerial P1(35, 13);    // 35=rx, 13=tx
+
+#if defined( SW_SERIAL)
+#include <SoftwareSerial.h>
+  SoftwareSerial swSerial(35, 13);    // 35=rx, 13=tx
+  Dsm dsm( swSerial);                 // DSM on SW Serial port
+#else
+  Dsm dsm( Serial);                   // DSM on HW Serial port 
+#endif
+
 LoRa lora;
-Dsm dsm( P1);                 //  De slimme meter
-
-
 long milliCount = 0;
 long cycleTime = CYCLETIME;
 bool ttnOk = false;
@@ -52,9 +55,12 @@ void loracallback( unsigned int port, unsigned char* msg, unsigned int len) {
 
 void setup() {
 
-  //initialize Serial Monitor
-  Serial.begin(115200);
-  P1.begin( BAUDRATE);
+#if defined( SW_SERIAL)
+  swSerial.begin(BAUDRATE);           // max softserial baudrate is 57K6
+  Serial.begin(115200);               // set debug output to 115K2
+#else
+  Serial.begin(BAUDRATE);             // take care, debug port and P1 are the same 
+#endif
 
   // LoRa send LED
   pinMode(LED_BUILTIN, OUTPUT);
@@ -78,7 +84,8 @@ void setup() {
   display.setTextColor(WHITE);
   display.setTextSize(1);
   display.setCursor(0, 11);  display.printf("TTN Slimme meter %s", VERSION);
-  display.setCursor(0, 22);  display.printf("Starting up ...");
+  display.setCursor(0, 22);  display.printf("Baudrate %d", BAUDRATE);
+  display.setCursor(0, 33);  display.printf("Starting up ...");
   display.display();
   lora.receiveHandler( loracallback);     // set LoRa receive handler (downnlink)
   lora.begin();                           // Lora join
