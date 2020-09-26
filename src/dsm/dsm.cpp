@@ -15,7 +15,7 @@
 #define HOOG      "1%-0:1%.8%.2%((%d+%.%d+)%*"
 #define LAAGTERUG "1%-0:2%.8%.1%((%d+%.%d+)%*"
 #define HOOGTERUG "1%-0:2%.8%.2%((%d+%.%d+)%*"
-#define GAS       "%c%((%d+%.%d+)%)"
+#define GAS       "0%-1:24%.2%.1.*%(.+%).*%((%d+%.%d+)"
 
 Dsm::Dsm( Stream &port) {
   p1 = &port;
