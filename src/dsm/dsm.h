@@ -10,7 +10,7 @@
 #define __DSM_H_
 #include <Arduino.h>
 
-#define BUF_SZ 1000
+#define BUF_SZ 1500
 
 class Dsm {
   public:
