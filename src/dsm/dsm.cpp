@@ -92,7 +92,7 @@ uint32_t Dsm::jenkins_one_at_a_time_hash( char* key) {
   hash += (hash << 3);
   hash ^= (hash >> 11);
   hash += (hash << 15);
-  printf("hash=%d\n", hash);
+  //printf("hash=%d\n", hash);
   return hash;
 }
 
