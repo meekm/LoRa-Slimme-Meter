@@ -5,10 +5,12 @@ This little box with TTGO LoRa32 V1 board reads the "De Slimme Meter" (DSM) valu
 The software has been tested with the meters ISKRA, KAIFA, KAMSTRUP, LANDIS, SAGEMCOM with 9600 and 115200 baud.
 
 <img src="images/dsm.jpg" alt="De Slimme Meter" width="300"/>
-> LoRa Slimme Meter Box
-<img src="images/oled.jpg" alt="OLED display" width="300"/>
-> TTGO OLED display
 
+> LoRa Slimme Meter Box
+
+<img src="images/oled.jpg" alt="OLED display" width="300"/>
+
+> TTGO OLED display
 
 ##Software Updates
 Update to version 3 includes:
@@ -52,7 +54,9 @@ The hardware serial port 0 of the TTGO s is used for reading the DSM. A software
 Note: when you are debugging/uploading the program via the mico usb, disconnect the DSM from port 0.
 
 The serial data levels from DSM must be inverted, see hardware wiring diagram.
-<img src="images/wiring.jpg" alt="Wiring RJ11 connector to TTGO" width="300"/>
+
+<img src="images/wiring.svg" alt="Wiring RJ11 connector to TTGO" width="400"/>
+
 > Wiring RJ11 connector to TTGO
 
 ## JSON Output
