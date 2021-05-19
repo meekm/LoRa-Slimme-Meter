@@ -15,7 +15,6 @@ function decodeUplink(input) {
     return floating_point;
   }
   
-  
   function bytesToHex( bytes) {
     var hex = bytes[3].toString(16);
     hex += bytes[2].toString(16);
