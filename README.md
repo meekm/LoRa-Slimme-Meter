@@ -1,7 +1,12 @@
 ## P1 Slimme meter
 
 #### Open source (hardware) P1 Slimme meter for the internet of things.
-This little box with TTGO LoRa32 V1 board reads the "De Slimme Meter" (DSM) values via the serial P1 Port and sends the values to the LoRa TTN network. The OLED display shows the the meter values electricity low, high, low-return, high-return and gas. 
+This little box with TTGO LoRa32 V1 board reads the "De Slimme Meter" (DSM) values via the serial P1 Port and sends the values to the LoRa TTN network. The OLED display shows the meter values:
+* electricity low [kWh]
+* electricity high [kWh]
+* electricity low-return [kWh]
+* electricity high-return [kWh]
+* gas [m3]
 
 The software has been tested with the meters ISKRA, KAIFA, KAMSTRUP, LANDIS, SAGEMCOM with 9600 and 115200 baud.
 
@@ -13,9 +18,19 @@ The software has been tested with the meters ISKRA, KAIFA, KAMSTRUP, LANDIS, SAG
 
 > TTGO OLED display
 
+## Hardware
+The hardware serial port 0 of the TTGO is used for reading the DSM. A software serial port is too slow for a speed of 115200 baud. 
+Note: when you are debugging/uploading the program via the micro-usb, disconnect the DSM from port 0.
+
+The serial data levels from DSM must be inverted, see hardware wiring diagram.
+
+<img src="images/wiring.svg" alt="Wiring RJ11 connector to TTGO" width="800"/>
+
+> Wiring RJ11 connector to TTGO
+
 ## Software Updates
 Update to version 3 includes:
-* MCCI Catena lora stack
+* MCCI Catena LoRa stack
 * payload decoder has been adapted for TTN V3
 * worker loop changed
 * DEVEUI is read from chipid
@@ -30,7 +45,6 @@ In “config.h” you can define:
 * auto or fixed baudrate of the “Slimme meter”.
 * Lora keys, APPEUI and APPKEY. (DEVEUI becomes TTGO board-id)
 
-
 ## Libraries
 
 #### LMIC
@@ -42,25 +56,15 @@ Take care that you change the frequency plan to Europe (if you are in Europe), b
 #define CFG_eu868 1
 ```
 
-#### Monochrome OLED library
-For the TTGO board, download the libraries below and put them in your [Arduino-path]\libraries
+#### OLED library
+Download the libraries below and put them in your [Arduino-path]\libraries
 ```
 https://github.com/adafruit/Adafruit_SSD1306
 https://github.com/adafruit/Adafruit-GFX-Library
 ```
 
-## Hardware
-The hardware serial port 0 of the TTGO s is used for reading the DSM. A software serial port is too slow for a speed of 115200 baud. 
-Note: when you are debugging/uploading the program via the mico usb, disconnect the DSM from port 0.
-
-The serial data levels from DSM must be inverted, see hardware wiring diagram.
-
-<img src="images/wiring.svg" alt="Wiring RJ11 connector to TTGO" width="800"/>
-
-> Wiring RJ11 connector to TTGO
-
-## JSON Output
-Example output of the TTN Payload decoder:
+## Interface
+Example output of the TTN Payload decoder (JSON):
 ```
 {
    "gas":24134.816,
