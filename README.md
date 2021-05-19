@@ -2,6 +2,7 @@
 
 #### Open source (hardware) P1 Slimme meter for the internet of things.
 This little box with TTGO LoRa32 V1 board reads the "De Slimme Meter" (DSM) values via the serial P1 Port and sends the values to the LoRa TTN network. The OLED display shows the the meter values electricity low, high, low-return, high-return and gas. 
+
 The software has been tested with the meters ISKRA, KAIFA, KAMSTRUP, LANDIS, SAGEMCOM with 9600 and 115200 baud.
 
 <img src="images/dsm.jpg" alt="De Slimme Meter" width="300"/>
@@ -12,7 +13,7 @@ The software has been tested with the meters ISKRA, KAIFA, KAMSTRUP, LANDIS, SAG
 
 > TTGO OLED display
 
-##Software Updates
+## Software Updates
 Update to version 3 includes:
 * MCCI Catena lora stack
 * payload decoder has been adapted for TTN V3
@@ -23,8 +24,7 @@ Update to version 3 includes:
 * software serial interface removed
 * hashed meter id removed
 
-
-##Configuration
+## Configuration
 In “config.h” you can define:
 * the period time of sending updates (default 10 minutes)
 * auto or fixed baudrate of the “Slimme meter”.
@@ -55,7 +55,7 @@ Note: when you are debugging/uploading the program via the mico usb, disconnect 
 
 The serial data levels from DSM must be inverted, see hardware wiring diagram.
 
-<img src="images/wiring.svg" alt="Wiring RJ11 connector to TTGO" width="400"/>
+<img src="images/wiring.svg" alt="Wiring RJ11 connector to TTGO" width="600"/>
 
 > Wiring RJ11 connector to TTGO
 
