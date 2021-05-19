@@ -10,7 +10,7 @@
 #define __DSM_H_
 #include <Arduino.h>
 
-#define BUF_SZ 1500
+#define BUF_SZ 2500
 
 class Dsm {
   public:
@@ -22,12 +22,14 @@ class Dsm {
     float laag, hoog, laagTerug, hoogTerug, gas;  
 
   private:
+    bool rawRead();
     void parseMsg();
     void convertHexToBytes( char* dst, char* src);
     uint32_t jenkins_one_at_a_time_hash( char* key);
     Stream *p1;
+    bool stx = false;
     char buf[ BUF_SZ];
-    int i;
+    int i = 0;
 }; 
 
 #endif //_DSM_H_

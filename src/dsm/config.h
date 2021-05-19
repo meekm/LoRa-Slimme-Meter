@@ -4,24 +4,25 @@
  * - LoRa keys
  * - Baudrate Port
  * Marcel Meek, July 2020
- * 
+ *  update 16-5-2021
  */
 
 #ifndef _CONFIG_h /* Prevent loading library twice */
 #define _CONFIG_h
 
-// specify here TTN keys
-#define APPEUI "0000000000000000"
-#define DEVEUI "0000000000000000"
-#define APPKEY "00000000000000000000000000000000"
+// specify here TTN keys V3
+#define APPEUI "70B3D57ED002E7AF"  // buitenbuurt
+#define APPKEY "F4E57B1FCDF5117C7189E48699A8311E"
+// DEVEU is filled by board id
 
-// define in milleseconds how often a message will be sent
-#define CYCLETIME 600000  //10 minutes
+// define in seconds how often a message will be sent
+#define CYCLETIME 600-15         //600 sec
 
+// Baudrate for DSM
+#define BAUDRATE 0           // auto baudrate, during setup 115200 is tested. If fails it falls back is 9600 baud
+//#define BAUDRATE 115200   // set baudrate fixed to 115200
+//#define BAUDRATE 9600     // set baudrate fixed to 9600
 
-// You must use Hardware Serial if baudrate > 57.6K
-// use HW serial
-#undef SW_SERIAL
-#define BAUDRATE 115200
-#define VERSION "1.1"
+#define VERSION "3.0"
+
 #endif

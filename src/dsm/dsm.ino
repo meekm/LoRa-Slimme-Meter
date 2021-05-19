@@ -4,6 +4,13 @@
 
   Author Marcel Meek
   Date 12/7/2020
+  changed 16-5-2021
+  - MCCI Catena lora stack
+  - worker loop changed
+  - deveui from chipid
+  - dsm parser updated 
+  - detect auto baudrate 115K2 or 9600
+  - sw serial removed
   --------------------------------------------------------------------*/
 #include <Arduino.h>
 
@@ -24,19 +31,13 @@
 
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RST);
 
-#if defined( SW_SERIAL)
-#include <SoftwareSerial.h>
-  SoftwareSerial swSerial(35, 13);    // 35=rx, 13=tx
-  Dsm dsm( swSerial);                 // DSM on SW Serial port
-#else
-  Dsm dsm( Serial);                   // DSM on HW Serial port 
-#endif
+Dsm dsm( Serial);                   // DSM on HW Serial port
 
-LoRa lora;
-long milliCount = 0;
+int baudrate = 115200;
 long cycleTime = CYCLETIME;
 bool ttnOk = false;
 bool dsmOk = false;
+char deveui[32];
 
 // LoRa receive handler (downnlink)
 void loracallback( unsigned int port, unsigned char* msg, unsigned int len) {
@@ -47,30 +48,34 @@ void loracallback( unsigned int port, unsigned char* msg, unsigned int len) {
   if ( port == 40 && len >= 2) {
     int value = msg[0] + 256 * msg[1];
     if ( value >= 20 && value <= 3600) {
-      cycleTime = 1000 * value;
+      cycleTime = value;
       printf( "cycleTime changed to %d sec.\n" , value);
     }
   }
 }
 
 void setup() {
-
-#if defined( SW_SERIAL)
-  swSerial.begin(BAUDRATE);           // max softserial baudrate is 57K6
-  Serial.begin(115200);               // set debug output to 115K2
-#else
-  Serial.begin(BAUDRATE);             // take care, debug port and P1 are the same 
-#endif
+  if( BAUDRATE) 
+    baudrate = BAUDRATE;    // fixed baudrate
+  else 
+    baudrate = 115200;      // auto baudrate, start with 115200
+  Serial.begin( baudrate);  // take care, debug port and P1 are the same
+  delay(200);
 
   // LoRa send LED
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite( LED_BUILTIN, LOW);
+  digitalWrite( LED_BUILTIN, LOW);   // off
 
   //reset OLED display via software
   pinMode(OLED_RST, OUTPUT);
   digitalWrite(OLED_RST, LOW);
   delay(20);
   digitalWrite(OLED_RST, HIGH);
+
+  // get chip id, to be used for DEVEUI LoRa
+  uint64_t chipid = ESP.getEfuseMac();   //The chip ID is essentially its MAC address(length: 6 bytes).
+  sprintf(deveui, "%08X%08X", (uint16_t)(chipid >> 32), (uint32_t)chipid);
+  printf("deveui=%s\n", deveui);
 
   //initialize OLED
   Wire.begin(OLED_SDA, OLED_SCL);
@@ -84,12 +89,31 @@ void setup() {
   display.setTextColor(WHITE);
   display.setTextSize(1);
   display.setCursor(0, 11);  display.printf("TTN Slimme meter %s", VERSION);
-  display.setCursor(0, 22);  display.printf("Baudrate %d", BAUDRATE);
+  display.setCursor(0, 22);  display.printf("Id %s", deveui + 4);
   display.setCursor(0, 33);  display.printf("Starting up ...");
   display.display();
-  lora.receiveHandler( loracallback);     // set LoRa receive handler (downnlink)
-  lora.begin();                           // Lora join
+
+  // if auto Baudrate is enabled, check the speed of dsm
+  if( !BAUDRATE) {   // test if a message can be read on 115200
+    dsmOk = dsm.read();
+    if( !dsmOk) {   // if not ok, fall back to 9600 baud 
+      baudrate = 9600;
+      Serial.end();
+      delay( 200);
+      Serial.begin( baudrate);
+      delay( 200);
+    }
+  }
+  printf("baudrate=%d\n", baudrate);
+
+//initialize LoRa
+  loraBegin( APPEUI, deveui, APPKEY);
+  loraSetRxHandler( loracallback);    // set LoRa receive handler (downnlink)
+  loraSetWorker( loraWorker);         // set Worker handler
+  loraSetTxComplete( loraTxComplete); // set Tx complete handler
+
   printf("Initializing OK!\n");
+  loraWorker();                     // Call the worker once from here
 }
 
 void displayOLED() {
@@ -102,8 +126,13 @@ void displayOLED() {
   display.setCursor(0, 22); display.printf( "-%.3f", dsm.laagTerug);
   display.setCursor(64, 22); display.printf( "-%.3f", dsm.hoogTerug);
   display.setCursor(0, 33); display.printf( " Gas %.3f", dsm.gas);
-  display.setCursor(0, 44); display.printf( " Id %X %d", dsm.id, atoi(DEVEUI));
-  display.setCursor(0, 55); display.printf( " DSM %s", (dsmOk) ? "ok" : "fail");
+  //display.setCursor(0, 44); display.printf( " Id %X %s", dsm.id, deveui + 4);
+  display.setCursor(0, 44); display.printf( " Id %s", deveui + 4);
+  display.setCursor(0, 55); 
+  if(dsmOk) 
+    display.printf( " DSM %d", baudrate);
+  else 
+    display.printf( " DSM fail");
   display.setCursor(64, 55); display.printf( " TTN %s", (ttnOk) ? "ok" : "fail");
   display.display();
 }
@@ -122,25 +151,25 @@ void sendToTTN( ) {
   payload.gas = dsm.gas;
 
   printf("send TTN len=%d\n", sizeof( payload));
+  loraSend( 40, (unsigned char*)&payload, sizeof( payload));  // use port 40
+}
+
+void loraTxComplete( bool ok) {
+   ttnOk = ok;
+   displayOLED();   // display it
+   digitalWrite( LED_BUILTIN, LOW);
+}
+
+void loraWorker( ) {
+  printf("Worker\n");
+  dsmOk = dsm.read();
+  //dsm.debug();
+  //printf("end read DSM, baudrate=%d, dsmOk=%d\n", baudrate, dsmOk);
   digitalWrite( LED_BUILTIN, HIGH);
-  ttnOk = lora.sendMsg( 40, (unsigned char*)&payload, sizeof( payload));  // use port 40
-  digitalWrite( LED_BUILTIN, LOW);
+  sendToTTN();
+  loraSleep( cycleTime);
 }
 
 void loop() {
-
-  // cycle time is 10 min. when connected to ttn, cycle time is 20sec when ttn fails
-  if ( millis() - milliCount > ((ttnOk) ? cycleTime : 20000)) {
-    milliCount = millis();
-    sendToTTN();
-    displayOLED();    // display after ttn send
-    dsmOk = false;
-  }
-
-  if( dsm.read()) {
-    dsmOk = true;    // complete telegram received
-    displayOLED();   // display it
-  }
-
-  lora.process();
+   loraProcess();
 }
