@@ -31,7 +31,7 @@ In “config.h” you can define:
 * Lora keys, APPEUI and APPKEY. (DEVEUI becomes TTGO board-id)
 
 
-##Libraries
+## Libraries
 
 #### LMIC
 There are several LIMC LoRaWan libraries. I use the LMIC library from MCCI-Catena, because this one is currently best maintained. 
@@ -55,7 +55,7 @@ Note: when you are debugging/uploading the program via the mico usb, disconnect 
 
 The serial data levels from DSM must be inverted, see hardware wiring diagram.
 
-<img src="images/wiring.svg" alt="Wiring RJ11 connector to TTGO" width="600"/>
+<img src="images/wiring.svg" alt="Wiring RJ11 connector to TTGO" width="800"/>
 
 > Wiring RJ11 connector to TTGO
 
